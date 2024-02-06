@@ -101,7 +101,8 @@ c = np.transpose(b)
 print('\nTranspose of b is:\n', c)
 print('Shape of vector b after np.transpose(b):\n', np.shape(c))
 
-import ME4140_Functions as fn
+
+import ME4140_L02_Functions_Spring_2023 as fn # Note, the file name here is ME4140_L02_Functions.py and needs to match
 
 # compare the shape of the two row vectors
 fn.checkShape(b, c)

@@ -8,7 +8,7 @@ Log:
 '''
 
 import numpy as np
-import Rotation_Matrices as ME4140
+import ME4140_Functions as ME4140 # You will need to create your own functions file to run this.                
 
 # Original orientation of the {b} frame
 Rsb = np.eye(3)
