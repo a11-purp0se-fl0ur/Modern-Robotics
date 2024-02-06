@@ -1,5 +1,5 @@
 '''
-Description: Functions involved with rotation matrices
+Description: Functions.py involved with rotation matrices
 Author: Mia Scoblic
 Date: 02/03/2024
 '''

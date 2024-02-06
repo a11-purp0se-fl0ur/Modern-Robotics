@@ -8,9 +8,6 @@ Log:
 01/19/2023: Added call to external functions file to demonstrate how to call functions from another file
 '''
 
-
-
-
 # Basic Python variables
 a = 1 #integer
 b = 1.0 #float
