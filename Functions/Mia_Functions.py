@@ -6,7 +6,6 @@ Date: 02/03/2024
 
 import numpy as np
 
-
 # ----------------------------------------------------------------------------------------------------------------------
 # Description: Family of functions to calculate rotation matrices
 # ----------------------------------------------------------------------------------------------------------------------
@@ -33,3 +32,12 @@ def a_s(x_a, y_a):
 def a_b(Ras, Rsb):
     Rab = Ras @ Rsb
     return Rab
+
+# Changes the representation of a point in some space to the space frame ( Ps = Rsa * Pa )
+# Inputs: Given point and Rotation matrix you wish to multiply by
+# Outputs: Point in new frame
+def point_to_s(P, R):
+    Ps = R @ P
+    return Ps
+
+
