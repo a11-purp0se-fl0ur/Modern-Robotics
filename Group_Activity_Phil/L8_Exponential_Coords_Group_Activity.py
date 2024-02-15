@@ -9,7 +9,7 @@ Log:
 '''
 
 import numpy as np
-import ME4140_Functions as ME4140 # You will need to create your own functions file to run this.                
+from Functions.Phil_Functions import * # You will need to create your own functions file to run this.
                      
 wHat = np.array([0,0.866,0.5])
 thetad = 30

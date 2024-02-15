@@ -6,6 +6,7 @@ Date: 01/19/2023
 
 import numpy as np
 
+
 # Indicate the number of rows and columns for a matrix
 def checkShape(matA, matB):
     if np.shape(matA) == np.shape(matB):
@@ -13,14 +14,17 @@ def checkShape(matA, matB):
     else:
         print('New shape!')
 
+
 # Inverting Matrices
 def myInv(matrix):
     return np.linalg.inv(matrix)
+
 
 # Adding Matrices
 def addMats(A, B):
     C = A + B
     return C
+
 
 # Rotation matrices using angle and direction
 def Rot(axis, angle, ang_type):
@@ -62,5 +66,4 @@ def Rot(axis, angle, ang_type):
 
     return R
 
-
-#--------------------------------------------------------------------
+# --------------------------------------------------------------------

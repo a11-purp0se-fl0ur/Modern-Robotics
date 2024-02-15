@@ -1,7 +1,7 @@
 """
-Description: ME:4140 Homework 2
+Description: ME:4140 Homework 4
 Name: Mia Scoblic
-Date: 2024-02-03
+Date: 2024-02-15
 """
 
 import numpy as np
@@ -10,67 +10,64 @@ from Functions.Phil_Functions import *
 
 # Problem 1 ------------------------------------------------------------------------------------------------------------
 print('\nProblem 1:')
-x_a = matrix("0 0 1")
-y_a = matrix("-1 0 0")
-z_a = thirdVector(x_a, y_a)
-Rsa = rotCombine(x_a, y_a, z_a)
-print('Rsa:\n', Rsa)
+
+Rsb = Rot('z', 45, 'deg') @ Rot('x', 60, 'deg') @ Rot('y', 30, 'deg')
+RsbRound = np.round(Rsb,3)
+print('Rsb:\n', RsbRound)
 
 # Problem 2 ------------------------------------------------------------------------------------------------------------
 print('\nProblem 2:')
-x_b = np.array([1, 0, 0])
-y_b = np.array([0, 0, -1])
-z_b = thirdVector(x_b, y_b)
-Rsb = rotCombine(x_b, y_b, z_b)
-print('Rsb:\n', Rsb)
+
+theta1, omega1 = Matrix_Logarithm(Rsb)
+omega1unskew = unSkew(omega1)
+exponentialCoord1 = np.round(omega1unskew*theta1,3)
+print('Eponential Coordinates:\n', exponentialCoord1)
 
 # Problem 3 ------------------------------------------------------------------------------------------------------------
 print('\nProblem 3:')
+
+Ws = np.array([1, 2, 3])
 Rbs = np.transpose(Rsb)
-print('Rbs:\n', Rbs)
+Wb = np.round(Rbs @ Ws, 3)
+print('Wb:\n',Wb)
 
 # Problem 4 ------------------------------------------------------------------------------------------------------------
 print('\nProblem 4:')
-Ras = np.transpose(Rsa)
-Rab = Ras @ Rsb
-print('Rab:\n', Rab)
+
+omega2 = np.array([0.267, 0.535, 0.802])
+theta2 = np.radians(45)
+exponentialCoord2 = np.round(omega2*theta2,3)
+print('Exponential Coordinates:\n', exponentialCoord2)
 
 # Problem 5 ------------------------------------------------------------------------------------------------------------
 print('\nProblem 5:')
-Pa = np.array([3, 2, 1])
-Ps = Rsa @ Pa
-print('Ps:\n', Ps)
+omega2skew = skew(omega2)
+R1 = np.round(Rod(theta2,omega2skew),3)
+print('Resulting Matrix:\n', R1)
 
 # Problem 6 ------------------------------------------------------------------------------------------------------------
 print('\nProblem 6:')
-Rsa_2 = Rot('x', np.pi/4, 'rad') @ Rot('z', np.pi/2, 'rad')
-Z = np.round(Rsa_2, 1)
-print('Rsa:\n', Z)
+
+R2 = Rot('y', np.pi/2, 'rad') @ Rot('z', np.pi, 'rad') @ Rot('x', np.pi/2, 'rad')
+theta3, omega3 = Matrix_Logarithm(R2)
+omega3unskew = np.round(unSkew(omega3),3)
+print('Axis of Rotation:\n',omega3unskew)
 
 # Problem 7 ------------------------------------------------------------------------------------------------------------
 print('\nProblem 7:')
-Ras_2 = np.transpose(Z)
-print('Ras:\n', Ras_2)
+
+print('Angle:\n', theta3, 'radians')
 
 # Problem 8 ------------------------------------------------------------------------------------------------------------
 print('\nProblem 8:')
-Rsb_2 = Rot('z', 60, 'deg') @ Rot('x', 30, 'deg') @ Rot('y', 90, 'deg')
-Y = np.round(Rsb_2, 1)
-print('Rsb:\n', Y)
+
+print('Exponential Coordinates:\n', omega3unskew*theta3)
 
 # Problem 9 ------------------------------------------------------------------------------------------------------------
 print('\nProblem 9:')
-Rbs_2 = np.transpose(Y)
-print('Rbs:\n', Rbs_2)
+expCoord = np.array([1, 2, 1])
+R = np.round(expCoord_to_R(expCoord),3)
+print('Rotation Matrix:\n',R)
 
-# Problem 10 -----------------------------------------------------------------------------------------------------------
-print('\nProblem 10:')
-Rab_2 = Ras_2 @ Rsb_2
-X = np.round(Rab_2, 1)
-print('Rbs:\n', X)
 
-# Problem 11 -----------------------------------------------------------------------------------------------------------
-print('\nProblem 11:')
-Rba_2 = np.transpose(X)
-print('Rba:\n', Rba_2)
 

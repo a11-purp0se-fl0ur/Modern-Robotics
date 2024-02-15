@@ -8,14 +8,14 @@ Log:
 '''
 
 import numpy as np
-import ME4140_Functions as ME4140 # You will need to create your own functions file to run this.                
+from Functions.Phil_Functions import *
 
 # Original orientation of the {b} frame
 Rsb = np.eye(3)
 print("Original orientation of the {b} frame:\n", Rsb, '\n')
 
 # Rotation operator
-R = ME4140.Rot('z', 30, 'deg') @ ME4140.Rot('x', 40, 'deg')
+R = Rot('z', 30, 'deg') @ Rot('x', 40, 'deg')
 print('Rotation operator:\n', R, '\n')
 
 # New orientation of {b'} frame
