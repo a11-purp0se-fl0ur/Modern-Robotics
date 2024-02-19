@@ -20,11 +20,11 @@ def unSkew(R):
     return V
 
 def expCoord_to_R(expCoord):
-    theta = np.sqrt((expCoord.T * expCoord)[0])
-    omega = expCoord / np.sqrt((expCoord.T * expCoord)[0])
+    theta = np.linalg.norm(expCoord)
+    omega = expCoord / theta
     omegaskew = skew(omega)
     R = Rod(theta, omegaskew)
-    return R
+    return R-
 
 
 def Rod(theta, skewOmega):

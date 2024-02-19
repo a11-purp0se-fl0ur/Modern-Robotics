@@ -26,13 +26,7 @@ def rotCombine(x, y, z):
 # Description: Angular Velocity
 # ----------------------------------------------------------------------------------------------------------------------
 
-# Description: Convert a vector into a skew-symmetric matrix
-def skew(x):
-    x1 = x[0]
-    x2 = x[1]
-    x3 = x[2]
-    aSkew = np.array([[0, -x3, x2],[x3, 0, -x1],[-x2, x1, 0]])
-    return aSkew
+
 
 def unSkew(R):
     w1 = R[2,1]
@@ -42,12 +36,19 @@ def unSkew(R):
     return V
 
 def expCoord_to_R(expCoord):
-    theta = np.sqrt((expCoord.T * expCoord)[0])
-    omega = expCoord / np.sqrt((expCoord.T * expCoord)[0])
+    theta = np.linalg.norm(expCoord)
+    omega = expCoord / theta
     omegaskew = skew(omega)
     R = Rod(theta, omegaskew)
     return R
 
+# Description: Convert a vector into a skew-symmetric matrix
+def skew(x):
+    x1 = x[0]
+    x2 = x[1]
+    x3 = x[2]
+    aSkew = np.array([[0, -x3, x2],[x3, 0, -x1],[-x2, x1, 0]])
+    return aSkew
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -72,7 +73,7 @@ def Matrix_Logarithm(R):
     # Check for trace -1
     trR = np.trace(R)
     if np.isclose(trR, -1):
-        theta = np.pi
+        thet = np.pi
         # Select the appropriate omega calculation based on the matrix entries
         if (1 + R[2, 2]) > np.finfo(float).eps:
             omega = 1 / np.sqrt(2 * (1 + R[2, 2])) * np.array([R[0, 2], R[1, 2], 1 + R[2, 2]])

@@ -66,7 +66,7 @@ print('Exponential Coordinates:\n', omega3unskew*theta3)
 # Problem 9 ------------------------------------------------------------------------------------------------------------
 print('\nProblem 9:')
 expCoord = np.array([1, 2, 1])
-R = np.round(expCoord_to_R(expCoord),3)
+R = np.round(expCoord_to_R(expCoord), 3)
 print('Rotation Matrix:\n',R)
 
 
