@@ -6,7 +6,6 @@ Date: 02/03/2024
 
 import numpy as np
 
-
 # ----------------------------------------------------------------------------------------------------------------------
 # Description: Family of functions to calculate rotation matrices
 # ----------------------------------------------------------------------------------------------------------------------
@@ -26,22 +25,6 @@ def rotCombine(x, y, z):
 # Description: Angular Velocity
 # ----------------------------------------------------------------------------------------------------------------------
 
-
-
-def unSkew(R):
-    w1 = R[2,1]
-    w2 = R[0,2]
-    w3 = R[1,0]
-    V = np.row_stack((w1, w2, w3))
-    return V
-
-def expCoord_to_R(expCoord):
-    theta = np.linalg.norm(expCoord)
-    omega = expCoord / theta
-    omegaskew = skew(omega)
-    R = Rod(theta, omegaskew)
-    return R
-
 # Description: Convert a vector into a skew-symmetric matrix
 def skew(x):
     x1 = x[0]
@@ -50,19 +33,36 @@ def skew(x):
     aSkew = np.array([[0, -x3, x2],[x3, 0, -x1],[-x2, x1, 0]])
     return aSkew
 
+# Description: Convert the matrix back into a vector
+def unSkew(R):
+    w1 = R[2,1]
+    w2 = R[0,2]
+    w3 = R[1,0]
+    V = np.row_stack((w1, w2, w3))
+    return V
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Description: Exponential Coordinates
 # ----------------------------------------------------------------------------------------------------------------------
 
-# Description: Rodrigues' Formula
+# Description: Calculate R given omega (matrix) and theta
 def Rod(theta, skewOmega):
     R = np.eye(3) + (np.sin(theta)*skewOmega) + ((1-np.cos(theta)) * (skewOmega @ skewOmega))
+    return R
+
+# Description: Calculate R given omega and theta in vector form
+def expCoord_to_R(expCoord):
+    theta = np.linalg.norm(expCoord)
+    omega = expCoord / theta
+    omegaskew = skew(omega)
+    R = Rod(theta, omegaskew)
     return R
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Description: Matrix Logarithms
 # ----------------------------------------------------------------------------------------------------------------------
+
+# Description: Find axis of rotation and angle of rotation to get to a known R ending point
 def Matrix_Logarithm(R):
     # Check for identity matrix
     if np.allclose(R, np.eye(3)):
@@ -73,7 +73,7 @@ def Matrix_Logarithm(R):
     # Check for trace -1
     trR = np.trace(R)
     if np.isclose(trR, -1):
-        thet = np.pi
+        theta = np.pi
         # Select the appropriate omega calculation based on the matrix entries
         if (1 + R[2, 2]) > np.finfo(float).eps:
             omega = 1 / np.sqrt(2 * (1 + R[2, 2])) * np.array([R[0, 2], R[1, 2], 1 + R[2, 2]])
@@ -91,6 +91,19 @@ def Matrix_Logarithm(R):
     thetaRound = np.round(theta, 3)
     omegaRound = np.round(omega, 3)
     return thetaRound, omegaRound
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Description: Transformation Matrices
+# ----------------------------------------------------------------------------------------------------------------------
+
+# Description: Construct the T matrix from the R matrix and translation vector
+def constructT(R, p):
+    # Initialize transformation matrix
+    T = np.zeros([4,4])
+    T[0:3, 0:3] = R
+    T[:3, 3] = p
+    T[-1, -1] = 1
+    return T
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Description: Extra functionality functions
