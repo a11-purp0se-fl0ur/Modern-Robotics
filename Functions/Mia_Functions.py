@@ -160,20 +160,36 @@ def twistToScrew(V):
         return S2
 
 # Description: Go from Screw to Screw Parameters
-def screwToParameters(S, screwOrTwist):
+def screwToParameters(S):
 
     Sw = S[:3]
     Sv = S[3:]
 
     # Case 1 (Rotation and Translation)
-    if np.all(Sw[:] != 0):
-        h = np.transpose(Sw) @ Sv
+    if np.all(Sw != 0):
+        h = np.round(np.dot(np.transpose(Sw), Sv),3)
         sHat = Sw
+        SVr = Sv - (h * sHat)
+        q = np.cross(np.transpose(sHat), np.transpose(SVr))
+        return h, sHat, q
+    # Case 2 (Pure Translation)
+    else:
+        print("\nh is infinite.")
+        h = 0
+        sHat = Sv
+        print("\nq is not applicable.")
+        q = 0
+        return h, sHat, q
 
-        if screwOrTwist == 'screw':
-            SVr = Sv - (h * sHat)
-            q = (np.cross(SVr, -1*sHat))/((-1*sHat)@(-1*sHat))
-            return h, sHat, q
+# ----------------------------------------------------------------------------------------------------------------------
+# Description: Wrenches and Power
+# ----------------------------------------------------------------------------------------------------------------------
+
+# Description: Return the wrench given a force and distance
+def Wrench(f, r):
+    m = np.cross(r, f)
+    F = np.concatenate((m, f), axis=0)
+    return F
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Description: Extra functionality functions
