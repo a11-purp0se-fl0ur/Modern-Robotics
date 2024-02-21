@@ -106,7 +106,7 @@ def constructT(R, p):
     return T
 
 # ----------------------------------------------------------------------------------------------------------------------
-# Description: Twists
+# Description: Twists and Screws
 # ----------------------------------------------------------------------------------------------------------------------
 
 # Description: Calculate the adjoint representation of T
@@ -125,6 +125,55 @@ def adjoint(R, p):
     adjT[3:6, 3:6] = R
 
     return adjT
+
+# Description: Calculate screws axis given screw parameters sHat, q, and h
+def parametersToScrew(sHat, q, h):
+    # Define Sw and Sv
+    Sw = np.round(sHat,3)
+    Sv = np.round((np.cross(-1*sHat, q) + (h * sHat)),3)
+
+    # Compile S Matrix
+    S = np.zeros(6)
+    S[:3] = Sw
+    S[3:] = Sv
+
+    return S
+
+# Description: Go from Twist to Screw
+def twistToScrew(V):
+    # Reshape input into 1 column vector
+    colV = V.reshape(6,1)
+
+    # Split the vector into linear and angular parts
+    Vw = colV[:3]
+    Vv = colV[3:]
+
+    # Case 1 (Rotation and Translation)
+    if np.all(Vw[:] != 0):
+        thetaDot1 = np.round(np.linalg.norm(Vw),3)
+        S1 = colV / thetaDot1
+        return S1
+    # Case 2 (Pure Translation)
+    else:
+        thetaDot2 = np.round(np.linalg.norm(Vv),3)
+        S2 = colV / thetaDot2
+        return S2
+
+# Description: Go from Screw to Screw Parameters
+def screwToParameters(S, screwOrTwist):
+
+    Sw = S[:3]
+    Sv = S[3:]
+
+    # Case 1 (Rotation and Translation)
+    if np.all(Sw[:] != 0):
+        h = np.transpose(Sw) @ Sv
+        sHat = Sw
+
+        if screwOrTwist == 'screw':
+            SVr = Sv - (h * sHat)
+            q = (np.cross(SVr, -1*sHat))/((-1*sHat)@(-1*sHat))
+            return h, sHat, q
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Description: Extra functionality functions
