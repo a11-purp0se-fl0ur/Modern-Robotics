@@ -106,5 +106,26 @@ def constructT(R, p):
     return T
 
 # ----------------------------------------------------------------------------------------------------------------------
+# Description: Twists
+# ----------------------------------------------------------------------------------------------------------------------
+
+# Description: Calculate the adjoint representation of T
+def adjoint(R, p):
+
+    # Convert three-vector to matrix
+    pSkew = skew(p)
+
+    # Matrix multiplication
+    pR = pSkew @ R
+
+    # Set up Adjoint Matrix
+    adjT = np.zeros([6,6])
+    adjT[0:3, 0:3] = R
+    adjT[3:6, 0:3] = pR
+    adjT[3:6, 3:6] = R
+
+    return adjT
+
+# ----------------------------------------------------------------------------------------------------------------------
 # Description: Extra functionality functions
 # ----------------------------------------------------------------------------------------------------------------------
