@@ -1,24 +1,21 @@
-'''
+"""
 Description: Various Functions created for ME 4140
 Author: Mia Scoblic
 Date: 02/03/2024
-'''
+"""
 
 import numpy as np
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Description: Family of functions to calculate rotation matrices
 # ----------------------------------------------------------------------------------------------------------------------
 
-# Description: Calculating the third rotation vector given two others
-def thirdVector(x, y):
-    z = np.cross(x, y)
-    return z
-
 # Description: Combining three rotation vectors into a rotation matrix
 def rotCombine(x, y, z):
     R = np.column_stack((x, y, z))
     return R
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Description: Angular Velocity
@@ -32,6 +29,7 @@ def skew(x):
     aSkew = np.array([[0, -x3, x2], [x3, 0, -x1], [-x2, x1, 0]])
     return aSkew
 
+
 # Description: Convert the matrix back into a vector
 def unSkew(R):
     w1 = R[2, 1]
@@ -39,6 +37,7 @@ def unSkew(R):
     w3 = R[1, 0]
     V = np.row_stack((w1, w2, w3))
     return V
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Description: Exponential Coordinates
@@ -49,6 +48,7 @@ def Rod(theta, skewOmega):
     R = np.eye(3) + (np.sin(theta) * skewOmega) + ((1 - np.cos(theta)) * (skewOmega @ skewOmega))
     return R
 
+
 # Description: Calculate R given omega and theta in vector form
 def expCoord_to_R(expCoord):
     theta = np.linalg.norm(expCoord)
@@ -56,6 +56,7 @@ def expCoord_to_R(expCoord):
     omegaskew = skew(omega)
     R = Rod(theta, omegaskew)
     return R
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Description: Matrix Logarithms
@@ -91,6 +92,7 @@ def Matrix_Logarithm(R):
     omegaRound = np.round(omega, 3)
     return thetaRound, omegaRound
 
+
 # ----------------------------------------------------------------------------------------------------------------------
 # Description: Transformation Matrices
 # ----------------------------------------------------------------------------------------------------------------------
@@ -103,6 +105,7 @@ def constructT(R, p):
     T[:3, 3] = p
     T[-1, -1] = 1
     return T
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Description: Twists and Screws
@@ -130,6 +133,7 @@ def adjoint(T=None, R=None, p=None):
 
     return adjT
 
+
 # Description: Calculate screws axis given screw parameters sHat, q, and h
 def parametersToScrew(sHat, q, h):
     # Define Sw and Sv
@@ -142,6 +146,7 @@ def parametersToScrew(sHat, q, h):
     S[3:] = Sv
 
     return S
+
 
 # Description: Go from Twist to Screw
 def twistToScrew(V):
@@ -162,6 +167,7 @@ def twistToScrew(V):
         thetaDot2 = np.round(np.linalg.norm(Vv), 3)
         S2 = colV / thetaDot2
         return S2
+
 
 # Description: Go from Screw to Screw Parameters
 def screwToParameters(S):
@@ -184,6 +190,7 @@ def screwToParameters(S):
         q = 0
         return h, sHat, q
 
+
 # ----------------------------------------------------------------------------------------------------------------------
 # Description: Wrenches and Power
 # ----------------------------------------------------------------------------------------------------------------------
@@ -193,6 +200,7 @@ def Wrench(f, r):
     m = np.cross(r, f)
     F = np.concatenate((m, f), axis=0)
     return F
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Description: Extra functionality functions
@@ -204,6 +212,7 @@ def normalize(v):
     if norm == 0:
         return v
     return v / norm
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Description: Phil Functions
