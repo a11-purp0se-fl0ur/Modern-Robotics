@@ -110,7 +110,12 @@ def constructT(R, p):
 # ----------------------------------------------------------------------------------------------------------------------
 
 # Description: Calculate the adjoint representation of T
-def adjoint(R, p):
+def adjoint(T=None, R=None, p=None):
+    if T is not None:
+        R = T[0:3, 0:3]
+        p = T[0:3, 3]
+    elif R is None or p is None:
+        raise ValueError('Invalid Pass to Function')
 
     # Convert three-vector to matrix
     pSkew = skew(p)

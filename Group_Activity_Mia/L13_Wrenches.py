@@ -20,4 +20,25 @@ print("Fb:\n", Fb)
 Tab = constructT(Rab, pa)
 Tba = np.linalg.inv(Tab)
 
-Ad_Tba = ad
+Ad_Tba = adjoint(Tba)
+
+Fa = Ad_Tba.T @ Fb
+print("Fa:\n",Fa)
+
+# Group Activity--------------------------------------------------------------------------------------------------------
+# Given
+Rab2 = Rot('z', 60, 'deg') @ Rot('x', 45, 'deg')
+pa2 = np.array([3, 1, 5])
+rb2 = np.array([1, 7, -1])
+fb2= np.array([2, -3, -4])
+
+# Find Fb
+Fb2 = Wrench(fb2, rb2)
+print("Fb2:\n",Fb2)
+
+# Find Fa
+Tab2 = constructT(Rab2, pa2)
+Tba2 = np.linalg.inv(Tab2)
+Ad_Tba2 = adjoint(Tba2)
+Fa2 = Ad_Tba2.T @ Fb2
+print("Fa2:\n",Fa2)
