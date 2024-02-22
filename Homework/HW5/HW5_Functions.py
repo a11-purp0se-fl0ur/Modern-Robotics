@@ -3,9 +3,9 @@ Description: ME:4140 Homework 5
 Name: Mia Scoblic
 Date: 2024-02-21
 """
+import numpy as np
 
 from Functions.Mia_Functions import *
-from Functions.Phil_Functions import *
 
 dec = 3
 np.set_printoptions(precision=3, suppress=True)
@@ -15,10 +15,11 @@ print('\nProblem 1:')
 # Given:
 q1 = np.array([1, 3, 6])
 s1 = np.array([3, 2, 1])
+s1Hat = normalize(s1)
 h1 = 4
 
 # Find: Screw from parameters
-S = parametersToScrew(s1, q1, h1)
+S = parametersToScrew(s1Hat, q1, h1)
 print("S:\n", S)
 
 # Problem 2 ------------------------------------------------------------------------------------------------------------
@@ -87,7 +88,7 @@ h5 = 5
 
 # Find: Sc
 #   Calculate sHat
-sHat5 = np.array([0, np.cos(45), np.sin(45)])
+sHat5 = np.array([0, np.cos(np.radians(45)), np.sin(np.radians(45))])
 
 #   Calculate Sc
 Sc = parametersToScrew(sHat5, q5, h5)

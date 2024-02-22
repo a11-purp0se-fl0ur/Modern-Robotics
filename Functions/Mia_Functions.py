@@ -15,7 +15,6 @@ def thirdVector(x, y):
     z = np.cross(x, y)
     return z
 
-
 # Description: Combining three rotation vectors into a rotation matrix
 def rotCombine(x, y, z):
     R = np.column_stack((x, y, z))
@@ -30,14 +29,14 @@ def skew(x):
     x1 = x[0]
     x2 = x[1]
     x3 = x[2]
-    aSkew = np.array([[0, -x3, x2],[x3, 0, -x1],[-x2, x1, 0]])
+    aSkew = np.array([[0, -x3, x2], [x3, 0, -x1], [-x2, x1, 0]])
     return aSkew
 
 # Description: Convert the matrix back into a vector
 def unSkew(R):
-    w1 = R[2,1]
-    w2 = R[0,2]
-    w3 = R[1,0]
+    w1 = R[2, 1]
+    w2 = R[0, 2]
+    w3 = R[1, 0]
     V = np.row_stack((w1, w2, w3))
     return V
 
@@ -47,7 +46,7 @@ def unSkew(R):
 
 # Description: Calculate R given omega (matrix) and theta
 def Rod(theta, skewOmega):
-    R = np.eye(3) + (np.sin(theta)*skewOmega) + ((1-np.cos(theta)) * (skewOmega @ skewOmega))
+    R = np.eye(3) + (np.sin(theta) * skewOmega) + ((1 - np.cos(theta)) * (skewOmega @ skewOmega))
     return R
 
 # Description: Calculate R given omega and theta in vector form
@@ -99,7 +98,7 @@ def Matrix_Logarithm(R):
 # Description: Construct the T matrix from the R matrix and translation vector
 def constructT(R, p):
     # Initialize transformation matrix
-    T = np.zeros([4,4])
+    T = np.zeros([4, 4])
     T[0:3, 0:3] = R
     T[:3, 3] = p
     T[-1, -1] = 1
@@ -124,7 +123,7 @@ def adjoint(T=None, R=None, p=None):
     pR = pSkew @ R
 
     # Set up Adjoint Matrix
-    adjT = np.zeros([6,6])
+    adjT = np.zeros([6, 6])
     adjT[0:3, 0:3] = R
     adjT[3:6, 0:3] = pR
     adjT[3:6, 3:6] = R
@@ -134,8 +133,8 @@ def adjoint(T=None, R=None, p=None):
 # Description: Calculate screws axis given screw parameters sHat, q, and h
 def parametersToScrew(sHat, q, h):
     # Define Sw and Sv
-    Sw = np.round(sHat,3)
-    Sv = np.round((np.cross(-1*sHat, q) + (h * sHat)),3)
+    Sw = np.round(sHat, 3)
+    Sv = np.round((np.cross(-1 * sHat, q) + (h * sHat)), 3)
 
     # Compile S Matrix
     S = np.zeros(6)
@@ -147,7 +146,7 @@ def parametersToScrew(sHat, q, h):
 # Description: Go from Twist to Screw
 def twistToScrew(V):
     # Reshape input into 1 column vector
-    colV = V.reshape(6,1)
+    colV = V.reshape(6, 1)
 
     # Split the vector into linear and angular parts
     Vw = colV[:3]
@@ -155,24 +154,23 @@ def twistToScrew(V):
 
     # Case 1 (Rotation and Translation)
     if np.all(Vw[:] != 0):
-        thetaDot1 = np.round(np.linalg.norm(Vw),3)
+        thetaDot1 = np.round(np.linalg.norm(Vw), 3)
         S1 = colV / thetaDot1
         return S1
     # Case 2 (Pure Translation)
     else:
-        thetaDot2 = np.round(np.linalg.norm(Vv),3)
+        thetaDot2 = np.round(np.linalg.norm(Vv), 3)
         S2 = colV / thetaDot2
         return S2
 
 # Description: Go from Screw to Screw Parameters
 def screwToParameters(S):
-
     Sw = S[:3]
     Sv = S[3:]
 
     # Case 1 (Rotation and Translation)
     if np.all(Sw != 0):
-        h = np.round(np.dot(np.transpose(Sw), Sv),3)
+        h = np.round(np.dot(np.transpose(Sw), Sv), 3)
         sHat = Sw
         SVr = Sv - (h * sHat)
         q = np.cross(np.transpose(sHat), np.transpose(SVr))
@@ -199,3 +197,53 @@ def Wrench(f, r):
 # ----------------------------------------------------------------------------------------------------------------------
 # Description: Extra functionality functions
 # ----------------------------------------------------------------------------------------------------------------------
+
+# Description: Normalize an input vector
+def normalize(v):
+    norm = np.linalg.norm(v)
+    if norm == 0:
+        return v
+    return v / norm
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Description: Phil Functions
+# ----------------------------------------------------------------------------------------------------------------------
+# Rotation matrices using angle and direction
+def Rot(axis, angle, ang_type):
+    '''
+    Description: Calculates the rotation matrix for a given direction and angle.
+    Input: A rotation axis, angle and angle type, axis, angle, ang_type, respectively.
+    Return: The rotation matrix describing the current configuration
+    Example Input:
+        axis = 'z'
+        angle = 30
+        ang_type = 'deg'
+    Output:
+        np.array([[ 0, -3,  2],
+                  [ 3,  0, -1],
+                  [-2,  1,  0]])
+    '''
+    ang_type = ang_type.upper()
+
+    if ang_type == 'DEG':
+        angle = np.radians(angle)
+
+    if axis == 'x':
+        R = np.array([[1, 0, 0],
+                      [0, np.cos(angle), -np.sin(angle)],
+                      [0, np.sin(angle), np.cos(angle)]
+                      ])
+    elif axis == 'y':
+        R = np.array([[np.cos(angle), 0, np.sin(angle)],
+                      [0, 1, 0],
+                      [-np.sin(angle), 0, np.cos(angle)]
+                      ])
+    elif axis == 'z':
+        R = np.array([[np.cos(angle), -np.sin(angle), 0],
+                      [np.sin(angle), np.cos(angle), 0],
+                      [0, 0, 1]
+                      ])
+    else:
+        raise NameError('Valid axis not provided. Options are: x, y or z.')
+
+    return R
