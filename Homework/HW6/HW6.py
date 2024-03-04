@@ -57,12 +57,16 @@ print('\nProblem 4:')
 # Given:
 # Same problem as 3, just now express in the {s} frame
 
+# Method 1: Redo problem from new frame
+rsb = np.array([0, 0, L1_3 + L2_3 + L3_3 + L4_3])
+Ws = Wrench(fb, rsb)
+print('Wrench in {s}: ', Ws)
+
+# Method 2: Use the answer from 3 and the adjoint of the transformation matrix
+# Ws = [Ad_Tsb] @ Wb
 Rsb = np.eye(3)
-Psb = np.array([0, 0, L1_3 + L2_3 + L3_3 + L4_3])
-Tsb = constructT(Rsb, Psb)
-
-Adj_Tsb = adjoint(Tsb)
-
-Ws = Adj_Tsb @ Wb
-print(Ws)
+psb = np.array([0, 0, L1_3 + L2_3 + L3_3 + L4_3])
+Tsb = constructT(Rsb, psb)
+Tsb_adj = adjoint(Tsb)
+Ws2 = Tsb_adj @ Wb
 
