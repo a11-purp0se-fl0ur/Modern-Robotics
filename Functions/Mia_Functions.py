@@ -94,7 +94,7 @@ def Matrix_Logarithm(R):
 
 
 # ----------------------------------------------------------------------------------------------------------------------
-# Description: Transformation Matrices
+# Description: Transxformation Matrices
 # ----------------------------------------------------------------------------------------------------------------------
 
 # Description: Construct the T matrix from the R matrix and translation vector
