@@ -63,13 +63,13 @@ Ws = Wrench(fb, rsb)
 print('Wrench in {s}: ', Ws)
 
 # Method 2: Use the answer from 3 and the adjoint of the transformation matrix
-# Ws = [Ad_Tsb] @ Wb
 Rsb = np.eye(3)
 psb = np.array([0, 0, L1_3 + L2_3 + L3_3 + L4_3])
+
+
 Tsb = constructT(Rsb, psb)
 Tbs = np.linalg.inv(Tsb)
 Ad_Tbs = adjoint(Tbs)
-
 Ws = Ad_Tbs.T @ Wb
 print('Wrench in {s}: ', Ws)
 
