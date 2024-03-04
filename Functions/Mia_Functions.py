@@ -43,7 +43,7 @@ def unSkew(R):
 # Description: Exponential Coordinates
 # ----------------------------------------------------------------------------------------------------------------------
 
-# Description: Calculate R given omega (matrix) and theta
+# Description: Calculate R given omega (matrix) and theta, look up pre and post multiplication (need to adjust function if its not in space frame)
 def Rod(theta, skewOmega):
     R = np.eye(3) + (np.sin(theta) * skewOmega) + ((1 - np.cos(theta)) * (skewOmega @ skewOmega))
     return R
