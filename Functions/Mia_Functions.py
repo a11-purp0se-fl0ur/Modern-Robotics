@@ -94,7 +94,7 @@ def Matrix_Logarithm(R):
 
 
 # ----------------------------------------------------------------------------------------------------------------------
-# Description: Transxformation Matrices
+# Description: Transformation Matrices
 # ----------------------------------------------------------------------------------------------------------------------
 
 # Description: Construct the T matrix from the R matrix and translation vector
@@ -105,6 +105,19 @@ def constructT(R, p):
     T[:3, 3] = p
     T[-1, -1] = 1
     return T
+
+# Description: Swap subscripts on a transformation matrix.
+def invertT(T):
+    R = T[0:3, 0:3]
+    p = T[:3, 3]
+
+    R_transpose = np.transpose(R)
+    neg_R_transpose_p = -R_transpose @ p
+
+    T_inv = np.zeros([4, 4])
+    T_inv[0:3, 0:3] = R_transpose
+    T_inv[:3, 3] = neg_R_transpose_p
+    return T_inv
 
 
 # ----------------------------------------------------------------------------------------------------------------------
