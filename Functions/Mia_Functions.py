@@ -14,7 +14,11 @@ import numpy as np
 # Description: Combining three rotation vectors into a rotation matrix
 def rotCombine(x, y, z):
     R = np.column_stack((x, y, z))
-    return R
+    detR = np.linalg.det(R)
+    if detR == 1:
+        return R
+    else:
+        raise ValueError("Incorrect Rotation Matrix. The determinant must be equal to 1. Check input.")
 
 
 # ----------------------------------------------------------------------------------------------------------------------
