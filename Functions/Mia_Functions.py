@@ -62,12 +62,32 @@ def expCoord_to_R(expCoord):
     return R
 
 
+def matrix_exponential(A, theta, n=50):
+    """
+    Compute the matrix exponential e^(A*theta) using Taylor series expansion.
+
+    :param A: The matrix
+    :param theta: The scalar multiplier
+    :param n: Number of terms in the Taylor series expansion
+    :return: The matrix exponential of A*theta
+    """
+    result = np.eye(A.shape[0])  # Start with the identity matrix
+    A_scaled = A * theta
+    factorial = 1  # Factorial starts at 1! for the first term
+
+    for i in range(1, n):
+        factorial *= i
+        result += np.linalg.matrix_power(A_scaled, i) / factorial
+
+    return result
+
+
 # ----------------------------------------------------------------------------------------------------------------------
 # Description: Matrix Logarithms
 # ----------------------------------------------------------------------------------------------------------------------
 
 # Description: Find axis of rotation and angle of rotation to get to a known R ending point
-def Matrix_Logarithm(R):
+def Matrix_Logarithm_Rotations(R):
     # Check for identity matrix
     if np.allclose(R, np.eye(3)):
         theta = 0
@@ -85,16 +105,12 @@ def Matrix_Logarithm(R):
             omega = 1 / np.sqrt(2 * (1 + R[1, 1])) * np.array([R[0, 1], 1 + R[1, 1], R[2, 1]])
         else:
             omega = 1 / np.sqrt(2 * (1 + R[0, 0])) * np.array([1 + R[0, 0], R[1, 0], R[2, 0]])
-        thetaRound = np.round(theta, 3)
-        omegaRound = np.round(omega, 3)
-        return thetaRound, omegaRound
+        return theta, omega
 
     # Otherwise, use the general formula
     theta = np.arccos(0.5 * (trR - 1))
     omega = 1 / (2 * np.sin(theta)) * (R - R.T)
-    thetaRound = np.round(theta, 3)
-    omegaRound = np.round(omega, 3)
-    return thetaRound, omegaRound
+    return theta, omega
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -167,23 +183,21 @@ def parametersToScrew(sHat, q, h):
 
 # Description: Go from Twist to Screw
 def twistToScrew(V):
-    # Reshape input into 1 column vector
-    colV = V.reshape(6, 1)
-
     # Split the vector into linear and angular parts
-    Vw = colV[:3]
-    Vv = colV[3:]
+    Vw = V[:3]  # Keep it as 1D array
+    Vv = V[3:]  # Keep it as 1D array
 
     # Case 1 (Rotation and Translation)
-    if np.all(Vw[:] != 0):
-        thetaDot1 = np.round(np.linalg.norm(Vw), 3)
-        S1 = colV / thetaDot1
-        return S1
+    if np.any(Vw != 0):  # np.any is more appropriate here
+        thetaDot1 = np.linalg.norm(Vw)
+        S1 = V / thetaDot1
+        return S1.flatten()  # Flatten the array to make it 1D
     # Case 2 (Pure Translation)
     else:
-        thetaDot2 = np.round(np.linalg.norm(Vv), 3)
-        S2 = colV / thetaDot2
-        return S2
+        thetaDot2 = np.linalg.norm(Vv)
+        S2 = V / thetaDot2
+        return S2.flatten()  # Flatten the array to make it 1D
+
 
 
 # Description: Go from Screw to Screw Parameters
@@ -218,6 +232,77 @@ def Wrench(f, r):
     F = np.concatenate((m, f), axis=0)
     return F
 
+# ----------------------------------------------------------------------------------------------------------------------
+# Description: Exponential Coordinates of Rigid Body Motion
+# ----------------------------------------------------------------------------------------------------------------------
+
+# Definition: Subfunction to compute G(theta)
+def G(theta, Sw_skew):
+    I = np.eye(3)
+    G_theta = theta * I + (1 - np.cos(theta)) * Sw_skew + (theta - np.sin(theta)) * (Sw_skew @ Sw_skew)
+    return G_theta
+
+# Definition: Provide the screw 6-vector in skew-symmetric form, and some theta, to recieve a transformation matrix.
+def expCoord_to_T(Screw, Theta, T=None):
+    if T is None:
+        T = np.eye(4)
+
+    Sw = Screw[:3].flatten()
+    Sv = Screw[-3:].flatten()
+
+    Sw_skew = skew(Sw)
+
+    R = Rod(Theta, Sw_skew)
+
+    p = G(Theta, Sw_skew) @ Sv
+
+    #T = np.vstack((np.hstack((R, np.reshape(p, (3, 1)))), [0, 0, 0, 1]))
+    T[0:3, 0:3] = R
+    T[0:3, 3] = p
+    T[3] = [0, 0, 0, 1]  # Ensuring the last row is [0, 0, 0, 1]
+
+    return T
+
+# Definition: Find Screw axis and Theta, given a transformation matrix.
+
+def T_to_Screw(T):
+    # Check if T is a 4x4 matrix
+    if T.shape != (4, 4):
+        raise ValueError("Transformation matrix T must be a 4x4 matrix.")
+
+    R = T[0:3, 0:3]
+    p = T[0:3, 3]
+
+    # Check if R is a valid rotation matrix (orthogonal and determinant of 1)
+    if not np.allclose(np.dot(R, R.T), np.eye(3)) or not np.isclose(np.linalg.det(R), 1):
+        raise ValueError("The upper-left 3x3 part of T must be a valid rotation matrix.")
+
+    trR = np.trace(R)
+
+    # Check if R is the identity matrix (no rotation)
+    if np.allclose(R, np.eye(3)):
+        theta = 0
+        S_w = np.zeros(3)
+        if np.linalg.norm(p) != 0:
+            S_v = p / np.linalg.norm(p)
+        else:
+            S_v = np.zeros(3)
+    else:
+        # Calculate theta
+        theta = np.arccos((trR - 1) / 2)
+        # Prevent division by a very small number
+        if np.isclose(theta, 0):
+            # No rotation, or very small rotation
+            S_w = np.zeros(3)
+            S_v = 0.5 * p  # Approximation for small angles
+        else:
+            # Compute screw axis
+            S_w = 1 / (2 * np.sin(theta)) * np.array([R[2, 1] - R[1, 2], R[0, 2] - R[2, 0], R[1, 0] - R[0, 1]])
+            G_inv_theta = 1 / theta * np.eye(3) - 0.5 * skew(S_w) + (1 / theta - 0.5 / np.tan(theta / 2)) * np.dot(skew(S_w), skew(S_w))
+            S_v = np.dot(G_inv_theta, p)
+
+    S = np.concatenate((S_w, S_v))
+    return theta, S
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Description: Extra functionality functions
