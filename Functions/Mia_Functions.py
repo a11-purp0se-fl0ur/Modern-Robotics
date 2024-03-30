@@ -5,7 +5,7 @@ Date: 02/03/2024
 """
 
 import numpy as np
-
+from scipy.linalg import expm
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Description: Family of functions to calculate rotation matrices
@@ -303,6 +303,26 @@ def T_to_Screw(T):
 
     S = np.concatenate((S_w, S_v))
     return theta, S
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Description: Product of Exponentials
+# ----------------------------------------------------------------------------------------------------------------------
+
+# Description: Computes transformation matrix T(theta) in space frame given array of thetas, M, and screws
+def PoE_Space(theta, M, screws):
+    prod_exp = np.identity(M.shape[0])
+
+    for i in range(theta.shape[1]):
+        screw = screws[:, i]
+        screw_skew = np.array([[0, -screw[2], screw[1], screw[3]],
+                               [screw[2], 0, -screw[0], screw[4]],
+                               [-screw[1], screw[0], 0, screw[5]],
+                               [0, 0, 0, 0]])
+        exp_screw_theta = expm(screw_skew * theta[0, i])
+        prod_exp = prod_exp @ exp_screw_theta
+
+    T = prod_exp @ M
+    return T
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Description: Extra functionality functions
