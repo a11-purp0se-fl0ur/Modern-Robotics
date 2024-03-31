@@ -325,6 +325,27 @@ def PoE_Space(theta, M, screws):
     return T
 
 # ----------------------------------------------------------------------------------------------------------------------
+# Description: Jacobian
+# ----------------------------------------------------------------------------------------------------------------------
+
+# Description: Calculate the Jacobian given array of link lengths and joint angles
+def Jacobian(L1, L2, theta1, theta2):
+    J = np.array([[-L1 * np.sin(theta1) - L2 * np.sin(theta1 + theta2), -L2 * np.sin(theta1 + theta2)], [L1 * np.cos(theta1) + L2 * np.cos(theta1 + theta2), L2 * np.cos(theta1 + theta2)]])
+
+    Rank_J = np.linalg.matrix_rank(J)
+    print('Rank of the Jacobian: ', Rank_J)
+    det_J = np.linalg.det(J)
+
+    if (det_J):
+        print('Jacobian is NOT singular')
+        print('Determinant is: ', det_J)
+    else:
+        print('Jacobian is singular')
+        print('Determinant is: ', det_J)
+
+    return J
+
+# ----------------------------------------------------------------------------------------------------------------------
 # Description: Extra functionality functions
 # ----------------------------------------------------------------------------------------------------------------------
 
