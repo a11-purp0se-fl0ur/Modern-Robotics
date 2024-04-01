@@ -27,11 +27,21 @@ def rotCombine(x, y, z):
 
 # Description: Convert a vector into a skew-symmetric matrix
 def skew(x):
-    x1 = x[0]
-    x2 = x[1]
-    x3 = x[2]
-    aSkew = np.array([[0, -x3, x2], [x3, 0, -x1], [-x2, x1, 0]])
-    return aSkew
+    if len(x) == 3:
+        x1, x2, x3 = x
+        return np.array([[0, -x3, x2],
+                         [x3, 0, -x1],
+                         [-x2, x1, 0]])
+    elif len(x) == 6:
+        x1, x2, x3, x4, x5, x6 = x
+        return np.array([
+            [0, -x3, x2, x4],
+            [x3, 0, -x1, x5],
+            [-x2, x1, 0, x6],
+            [0, 0, 0, 1]
+        ])
+    else:
+        raise ValueError("Input vector must be either a 3-vector or a 6-vector.")
 
 
 # Description: Convert the matrix back into a vector
