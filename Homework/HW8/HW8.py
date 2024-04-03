@@ -97,26 +97,43 @@ adj_Tes = adjoint(Tes)
 
 # Move wrench to {s}
 Fs = adj_Tes.T @ Fe
-print('Wrench in space frame:\n', Fs)
+
+# Find Jacobian
+Js1 = s1
+
+# 2nd Joint
+exp1 = expCoord_to_T(s1, theta1)
+exp1_Adj = adjoint(exp1)
+Js2 = exp1_Adj @ s2
+
+# 3rd Joint
+exp2 = expCoord_to_T(s2, theta2)
+exp2_Adj = adjoint(exp2)
+Js3 = exp2_Adj @ s3
+
+# Construct Jacobian
+J = np.column_stack((Js1, Js2, Js3))
+print('\nJacobian:\n', J)
 
 # Calculate torque
-torque = S.T @ Fs
+torque = J.T @ Fs
 print('\nTorque:\n', torque)
 
 # Problem 4 ------------------------------------------------------------------------------------------------------------
 print('\nProblem 4:')
 
 # Given Dimensions
-A = 3.5
-B = 6.75
-C = 11.50
-D = 0.41
-E = 12.0
-F = 2.4
+A = 0.35
+B = 0.675
+C = 1.150
+D = 0.041
+E = 1.20
+F = 0.24
+
 
 # Given force and moment
-fb = np.array([-50, 0, -981])
-mb = np.array([0, 0, 0])
+f = np.array([-50, 0, -981])
+m = np.array([0, 0, 0])
 
 # Position vector from {s} to {b}
 pbs = np.array([A+E+F, 0, B+C-D])
@@ -126,7 +143,7 @@ Rbs = np.eye(3)
 Tbs = constructT(Rbs, pbs)
 
 # Wrench in {s}
-Fs = Wrench(fb, pbs)
+Fs = np.array([m[0], m[1], m[2], f[0], f[1], f[2]])
 
 # Initialize Thetas
 theta = np.column_stack([0, 0, 0, 0, 0, 0])
@@ -136,9 +153,56 @@ h = 0
 wHat1 = np.array([0, 0, 1])
 wHat2 = np.array([0, 1, 0])
 wHat3 = np.array([0, 1, 0])
-What4 = np.array([1, 0, 0])
+wHat4 = np.array([1, 0, 0])
 wHat5 = np.array([0, 1, 0])
 wHat6 = np.array([1, 0, 0])
+q1 = np.array([0, 0, 0])
+q2 = np.array([A, 0, B])
+q3 = np.array([A, 0, B+C])
+q4 = np.array([A+E, 0, B+C-D])
+q5 = np.array([A+E, 0, B+C-D])
+q6 = np.array([A+E+F, 0, B+C-D])
 
+# Construct Screws
+S1 = parametersToScrew(wHat1, q1, h)
+S2 = parametersToScrew(wHat2, q2, h)
+S3 = parametersToScrew(wHat3, q3, h)
+S4 = parametersToScrew(wHat4, q4, h)
+S5 = parametersToScrew(wHat5, q5, h)
+S6 = parametersToScrew(wHat6, q6, h)
 
+# Jacobian
+Js1 = S1
 
+# 2nd Joint
+exp1 = expCoord_to_T(S1, 0)
+exp1_Adj = adjoint(exp1)
+Js2 = exp1_Adj @ S2
+
+# 3rd
+exp2 = expCoord_to_T(S2, 0)
+exp2_Adj = adjoint(exp2)
+Js3 = exp2_Adj @ S3
+
+# 4th
+exp3 = expCoord_to_T(S3, 0)
+exp3_Adj = adjoint(exp3)
+Js4 = exp3_Adj @ S4
+
+# 5th
+exp4 = expCoord_to_T(S4, 0)
+exp4_Adj = adjoint(exp4)
+Js5 = exp4_Adj @ S5
+
+# 6th
+exp5 = expCoord_to_T(S5, 0)
+exp5_Adj = adjoint(exp5)
+Js6 = exp5_Adj @ S6
+
+# Construct Jacobian
+J = np.column_stack((Js1, Js2, Js3, Js4, Js5, Js6))
+print('\nJacobian:\n', J)
+
+# Torque
+torque = J.T @ Fs
+print('\nTorque:\n', torque)
