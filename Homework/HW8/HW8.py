@@ -108,8 +108,9 @@ Js2 = exp1_Adj @ s2
 
 # 3rd Joint
 exp2 = expCoord_to_T(s2, theta2)
-exp2_Adj = adjoint(exp2)
-Js3 = exp2_Adj @ s3
+combine = exp1 @ exp2
+combine_Adj = adjoint(combine)
+Js3 = combine_Adj @ s3
 
 # Construct Jacobian
 J = np.column_stack((Js1, Js2, Js3))
@@ -180,23 +181,27 @@ Js2 = exp1_Adj @ S2
 
 # 3rd
 exp2 = expCoord_to_T(S2, 0)
-exp2_Adj = adjoint(exp2)
-Js3 = exp2_Adj @ S3
+combine12 = exp1 @ exp2
+combine12_Adj = adjoint(combine12)
+Js3 = combine12_Adj @ S3
 
 # 4th
 exp3 = expCoord_to_T(S3, 0)
-exp3_Adj = adjoint(exp3)
-Js4 = exp3_Adj @ S4
+combine23 = combine12 @ exp3
+combine23_Adj = adjoint(combine23)
+Js4 = combine23_Adj @ S4
 
 # 5th
 exp4 = expCoord_to_T(S4, 0)
-exp4_Adj = adjoint(exp4)
-Js5 = exp4_Adj @ S5
+combine34 = combine23 @ exp4
+combine34_Adj = adjoint(combine34)
+Js5 = combine34_Adj @ S5
 
 # 6th
 exp5 = expCoord_to_T(S5, 0)
-exp5_Adj = adjoint(exp5)
-Js6 = exp5_Adj @ S6
+combine45 = combine34 @ exp5
+combine45_Adj = adjoint(combine45)
+Js6 = combine45_Adj @ S6
 
 # Construct Jacobian
 J = np.column_stack((Js1, Js2, Js3, Js4, Js5, Js6))
