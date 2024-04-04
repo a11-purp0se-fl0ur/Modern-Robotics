@@ -85,7 +85,7 @@ f = np.array([5, -1, 3])  # Applied force at tip
 m = np.array([3, 1, 2])   # Applied moment at tip
 
 # Position vector from {s} to {ee}
-Fe = np.array([m[0], m[1], m[2], f[0], f[1], f[2]])
+Fe = np.array([3, 1, 2, 5, -1, 3])
 
 # Construct Tes
 Res = np.eye(3)
@@ -129,7 +129,6 @@ C = 1.150
 D = 0.041
 E = 1.20
 F = 0.24
-
 
 # Given force and moment
 f = np.array([-50, 0, -981])
