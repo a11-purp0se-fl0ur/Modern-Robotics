@@ -364,6 +364,78 @@ def singularity(A):
         print('Rank:', rank_A)
 
 # ----------------------------------------------------------------------------------------------------------------------
+# Description: Jacobian
+# ----------------------------------------------------------------------------------------------------------------------
+
+# Description: Calculate the Jacobian in the space frame given screws and thetas
+def SpaceJacobian(S, theta):
+    """
+    Construct the Jacobian matrix for a robot with multiple joints.
+
+    Parameters:
+    - S: An (6 x n) matrix of screw axes, where each column corresponds to a screw axis for a joint.
+    - theta: A list or array of joint angles, corresponding to each screw axis in S.
+
+    Returns:
+    - J: The Jacobian matrix of the robot at the given configuration.
+    """
+    num_joints = theta.size
+    J = np.zeros((6, num_joints))  # Initialize Jacobian matrix with zeros
+
+    # Start with the first column
+    J[:, 0] = S[:, 0]
+
+    # Product of exponentials up to the previous joint
+    T = np.eye(4)  # Start with the identity transformation
+
+    for i in range(1, num_joints):
+        # Compute the transformation matrix from the previous joint's screw axis and angle
+        T = T @ expCoord_to_T(S[:, i - 1], theta[i - 1])
+
+        # Calculate the adjoint transformation of T
+        Adj_T = adjoint(T)
+
+        # Compute the screw axis for current joint in the space frame
+        J[:, i] = Adj_T @ S[:, i]
+
+    return J
+
+# Description: Same thing, but for the body frame
+def BodyJacobian(S, theta):
+    """
+    Construct the Body Jacobian matrix for a robot with multiple joints.
+
+    Parameters:
+    - S: An (6 x n) matrix of screw axes in the body frame at the home configuration,
+         where each column corresponds to a screw axis for a joint.
+    - theta: A list or array of joint angles, corresponding to each screw axis in S.
+
+    Returns:
+    - Jb: The body Jacobian matrix of the robot at the given configuration.
+    """
+    num_joints = theta.size
+    Jb = np.zeros((6, num_joints))  # Initialize Jacobian matrix with zeros
+    T = np.eye(4)  # Start with the identity transformation
+
+    # Compute the forward transformation from base to end-effector
+    for i in range(num_joints):
+        T = T @ expCoord_to_T(S[:, i], theta[i])
+
+    # Work backwards from end-effector to base
+    for i in reversed(range(num_joints)):
+        # Compute the transformation for current joint
+        T = T @ expCoord_to_T(S[:, i], -theta[i])
+
+        # Calculate the adjoint transformation of the inverse of T
+        Adj_T_inv = adjoint(T)
+
+        # Update the body Jacobian matrix for the current joint
+        Jb[:, i] = Adj_T_inv @ S[:, i]
+
+    return Jb
+
+
+# ----------------------------------------------------------------------------------------------------------------------
 # Description: Extra functionality functions
 # ----------------------------------------------------------------------------------------------------------------------
 

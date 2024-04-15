@@ -20,7 +20,8 @@ theta1 = np.pi/3
 theta2 = np.pi/2
 theta3 = np.pi/3
 
-theta = np.column_stack((theta1,theta2,theta3))
+#theta = np.column_stack((theta1,theta2,theta3))
+theta = np.array([theta1,theta2,theta3])
 
 print('\ntheta:\n', theta)
 
@@ -61,4 +62,10 @@ print('\nJs3:\n', Js3)
 # Construct Jacobian
 J = np.column_stack((Js1, Js2, Js3))
 print('\nJacobian:\n', J)
+
+# Testing Function
+print('\nTesting Function:\n')
+
+Jtest = SpaceJacobian(S, theta)
+print('\nJacobian:\n', Jtest)
 
