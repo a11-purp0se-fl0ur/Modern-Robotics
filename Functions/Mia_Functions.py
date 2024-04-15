@@ -335,25 +335,27 @@ def PoE_Space(theta, M, screws):
     return T
 
 # ----------------------------------------------------------------------------------------------------------------------
-# Description: Jacobian
+# Description: Singularities
 # ----------------------------------------------------------------------------------------------------------------------
 
-# Description: Calculate the Jacobian given array of link lengths and joint angles
-def Jacobian(L1, L2, theta1, theta2):
-    J = np.array([[-L1 * np.sin(theta1) - L2 * np.sin(theta1 + theta2), -L2 * np.sin(theta1 + theta2)], [L1 * np.cos(theta1) + L2 * np.cos(theta1 + theta2), L2 * np.cos(theta1 + theta2)]])
-
-    Rank_J = np.linalg.matrix_rank(J)
-    print('Rank of the Jacobian: ', Rank_J)
-    det_J = np.linalg.det(J)
-
-    if (det_J):
-        print('Jacobian is NOT singular')
-        print('Determinant is: ', det_J)
+# Description: Code to determine if an input matrix is at a singularity by determining the rank and determinant
+def singularity(A):
+    if A.shape[0] != A.shape[1]:
+        raise ValueError('Matrix is not square.')
     else:
-        print('Jacobian is singular')
-        print('Determinant is: ', det_J)
+        rank_A = np.linalg.matrix_rank(A)
 
-    return J
+        det_A = np.linalg.det(A)
+        if det_A < 0.0001:
+            det_A = 0
+
+        if det_A == 0:
+            print('The matrix is less than full rank, at a singularity')
+        else:
+            print('The matrix is full rank, not singular')
+
+        print('Determinant:', det_A)
+        print('Rank:', rank_A)
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Description: Extra functionality functions

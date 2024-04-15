@@ -61,3 +61,4 @@ print('\nJs3:\n', Js3)
 # Construct Jacobian
 J = np.column_stack((Js1, Js2, Js3))
 print('\nJacobian:\n', J)
+
