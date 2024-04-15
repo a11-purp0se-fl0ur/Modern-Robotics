@@ -136,6 +136,12 @@ def constructT(R, p):
     T[-1, -1] = 1
     return T
 
+# Description: Deconstruct the T matrix to the R matrix and translation vector
+def deconstructT(T):
+    R = T[0:3, 0:3]
+    p = T[:3, 3]
+    return R, p
+
 # Description: Swap subscripts on a transformation matrix.
 def invertT(T):
     R = T[0:3, 0:3]
