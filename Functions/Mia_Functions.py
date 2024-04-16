@@ -340,6 +340,23 @@ def PoE_Space(theta, M, screws):
     T = prod_exp @ M
     return T
 
+# Description: Computes transformation matrix T(theta) in body frame given array of thetas, M, and screws
+def PoE_Body(theta, M, screws):
+    prod_exp = np.identity(M.shape[0])
+
+    for i in range(theta.shape[1]):
+        screw = screws[:, i]
+        screw_skew = np.array([[0, -screw[2], screw[1], screw[3]],
+                               [screw[2], 0, -screw[0], screw[4]],
+                               [-screw[1], screw[0], 0, screw[5]],
+                               [0, 0, 0, 0]])
+        exp_screw_theta = expm(screw_skew * theta[0, i])
+        prod_exp = prod_exp @ exp_screw_theta
+
+    T = M @ prod_exp
+    return T
+
+
 # ----------------------------------------------------------------------------------------------------------------------
 # Description: Singularities
 # ----------------------------------------------------------------------------------------------------------------------
@@ -433,6 +450,53 @@ def BodyJacobian(S, theta):
         Jb[:, i] = Adj_T_inv @ S[:, i]
 
     return Jb
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Description: Pseudo Inverse
+# ----------------------------------------------------------------------------------------------------------------------
+
+# Decription: Given a jacobian, determine the pseudo inverse depending on specific conditions
+def pseudoInv(J):
+    if J.shape[0] == J.shape[1]:
+        if np.linalg.matrix_rank(J) == J.shape[0]:
+            pseudoJ = np.linalg.inv(J)
+        else:
+            raise ValueError("Jacobian is square but not full rank")
+    elif J.shape[0] > J.shape[1]:
+        pseudoJ = np.linalg.inv(J.T @ J) @ J.T
+    elif J.shape[0] < J.shape[1]:
+        pseudoJ = J.T @ np.linalg.inv(J @ J.T)
+    else:
+        raise ValueError("None of the conditions are met. Check for errors.")
+    return pseudoJ
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Description: Inverse Kinematics Newton-Raphson
+# ----------------------------------------------------------------------------------------------------------------------
+
+# Description: Find array of angles that move robot to desired transformation matrix
+def newtonRaphson(M, Tsd, S, theta0, frame):
+    # Initialization
+    epsilon_w = 1e-3  # rotational error, rad
+    epsilon_v = 1e-3  # translational error, m
+    it = 0
+    itmax = 100
+    ew = 1e6
+    ev = 1e6
+
+    # Start of algorithm
+    print('\nSTART OF ALGORITHM')
+    print('iter\t theta1 (deg)\ttheta2 (deg)\t x\t y\t wz\t vx\t vy\t ew\t\t ev')
+    while (ew > epsilon_w or ev > epsilon_v) and it <= itmax:
+        if frame == 'space':
+            Tsb = PoE_Space(theta0, M, S)
+
+            Tbs = np.linalg.inv(Tsb)
+            Tbd = Tbs @ Tsd
+
+            Sb = T_to_Screw(Tbd)
+            Vb = Sb / theta0
+            #Vb = skew(Matr) # I need matrix log 6!!!
 
 
 # ----------------------------------------------------------------------------------------------------------------------
