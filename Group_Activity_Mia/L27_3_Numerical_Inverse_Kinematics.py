@@ -128,7 +128,7 @@ while (ew > epsilon_w or ev > epsilon_v) and it <= itmax:
         Tbd = Tbs @ Tsd
 
         # Body twist needed to move from {b} to {d}
-        Vb = se3ToVec(MatrixLog6(Tbd))
+        Vb = unSkew(MatrixLog6(Tbd))
 
         # Body twist in the space frame (space twist)
         Vs = Adjoint(Tsb) @ Vb
@@ -149,7 +149,7 @@ while (ew > epsilon_w or ev > epsilon_v) and it <= itmax:
         Tbd = Tbs @ Tsd
 
         Vb_bracket = MatrixLog6(Tbd)
-        Vb = se3ToVec(Vb_bracket)
+        Vb = unSkew(Vb_bracket)
         V = Vb
 
     else:

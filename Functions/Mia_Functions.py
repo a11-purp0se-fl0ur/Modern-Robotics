@@ -46,11 +46,23 @@ def skew(x):
 
 # Description: Convert the matrix back into a vector
 def unSkew(R):
-    w1 = R[2, 1]
-    w2 = R[0, 2]
-    w3 = R[1, 0]
-    V = np.row_stack((w1, w2, w3))
-    return V
+    if R.shape == (3, 3):
+        w1 = R[2, 1]
+        w2 = R[0, 2]
+        w3 = R[1, 0]
+        V = np.row_stack((w1, w2, w3))
+        return V
+    elif R.shape == (4, 4):
+        w1 = R[2, 1]
+        w2 = R[0, 2]
+        w3 = R[1, 0]
+        w4 = R[0, 3]
+        w5 = R[1, 3]
+        w6 = R[2, 3]
+        V = np.column_stack((w1, w2, w3, w4, w5, w6))
+        return V
+    else:
+        raise ValueError("Input matrix must be either 3x3 or 4x4.")
 
 
 # ----------------------------------------------------------------------------------------------------------------------
