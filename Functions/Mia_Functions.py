@@ -122,6 +122,63 @@ def Matrix_Logarithm_Rotations(R):
     omega = 1 / (2 * np.sin(theta)) * (R - R.T)
     return theta, omega
 
+# Description: REDO Matrix Log
+def Matrix_Logarithm(matrix):
+    """
+    Calculate the matrix logarithm for either a 3x3 rotation matrix R or a 4x4 transformation matrix T,
+    and return the result as a 4x4 skew-symmetric matrix.
+
+    Parameters:
+    - matrix: A numpy array of shape (3,3) or (4,4)
+
+    Returns:
+    - log_matrix: A 4x4 skew-symmetric matrix representing the logarithm of the matrix.
+    """
+    if matrix.shape == (3, 3):  # Handle 3x3 rotation matrix
+        R = matrix
+        if np.allclose(R, np.eye(3)):
+            return np.zeros((4, 4))  # Return zero matrix for identity
+
+        trR = np.trace(R)
+        if np.isclose(trR, -1):
+            theta = np.pi
+            if (1 + R[2, 2]) > np.finfo(float).eps:
+                omega = np.array([R[0, 2], R[1, 2], 1 + R[2, 2]])
+            elif (1 + R[1, 1]) > np.finfo(float).eps:
+                omega = np.array([R[0, 1], 1 + R[1, 1], R[2, 1]])
+            else:
+                omega = np.array([1 + R[0, 0], R[1, 0], R[2, 0]])
+            omega /= np.sqrt(2 * (1 + omega[-1]))
+            omega_skew = skew(omega)
+            log_matrix = np.zeros((4, 4))
+            log_matrix[:3, :3] = omega_skew
+            return log_matrix
+
+        theta = np.arccos(0.5 * (trR - 1))
+        omega = 1 / (2 * np.sin(theta)) * (R - R.T)
+        omega_skew = skew(omega)
+        log_matrix = np.zeros((4, 4))
+        log_matrix[:3, :3] = omega_skew
+        return log_matrix
+
+    elif matrix.shape == (4, 4):  # Handle 4x4 transformation matrix
+        R = matrix[:3, :3]
+        p = matrix[:3, 3]
+        log_matrix = Matrix_Logarithm(R)  # Recursively use the same function for rotation part
+        if np.trace(R) == 3:  # Special case for zero rotation
+            log_matrix[0:3, 3] = p
+        else:
+            theta = np.arccos((np.trace(R) - 1) / 2)
+            omega_skew = log_matrix[:3, :3]
+            G_inv = np.eye(3) - 0.5 * omega_skew + (1 - 0.5 / np.tan(0.5 * theta)) * omega_skew @ omega_skew
+            v = G_inv @ p
+            log_matrix[0:3, 3] = v
+
+        return log_matrix
+
+    else:
+        raise ValueError("Input must be either a 3x3 rotation matrix or a 4x4 transformation matrix.")
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Description: Transformation Matrices
@@ -344,13 +401,13 @@ def PoE_Space(theta, M, screws):
 def PoE_Body(theta, M, screws):
     prod_exp = np.identity(M.shape[0])
 
-    for i in range(theta.shape[1]):
+    for i in range(theta.size):  # This will iterate over the number of elements in theta
         screw = screws[:, i]
         screw_skew = np.array([[0, -screw[2], screw[1], screw[3]],
                                [screw[2], 0, -screw[0], screw[4]],
                                [-screw[1], screw[0], 0, screw[5]],
                                [0, 0, 0, 0]])
-        exp_screw_theta = expm(screw_skew * theta[0, i])
+        exp_screw_theta = expm(screw_skew * theta[i])  # Notice we use theta[i] instead of theta[0, i]
         prod_exp = prod_exp @ exp_screw_theta
 
     T = M @ prod_exp
@@ -494,9 +551,47 @@ def newtonRaphson(M, Tsd, S, theta0, frame):
             Tbs = np.linalg.inv(Tsb)
             Tbd = Tbs @ Tsd
 
-            Sb = T_to_Screw(Tbd)
-            Vb = Sb / theta0
-            #Vb = skew(Matr) # I need matrix log 6!!!
+            Vb = unSkew(Matrix_Logarithm(Tbd))
+
+            Vs = adjoint(Tsb) @ Vb
+
+            Js = SpaceJacobian(S, theta0)
+            Jinv = np.linalg.pinv(Js)
+
+            V = Vs
+
+        elif frame == 'body':
+            Tsb = PoE_Body(theta0, M, S)
+            J = BodyJacobian(S, theta0)
+
+            Tbs = np.linalg.inv(Tsb)
+            Jinv = np.linalg.pinv(J)
+
+            Tbd = Tbs @ Tsd
+
+            Vb_bracket = Matrix_Logarithm(Tbd)
+            Vb = unSkew(Vb_bracket)
+            V = Vb
+
+        else:
+            print('Please choose an appropriate frame (body or space) for the calculation.')
+            break
+
+        # error calculations
+        ew = np.linalg.norm([V[0], V[1], V[2]])
+        ev = np.linalg.norm([V[3], V[4], V[5]])
+
+        theta1 = theta0 + Jinv @ V
+
+        # End-effector coordinates
+        x, y = Tsb[0:2, -1]
+
+        print('{:d}\t {:.5f}\t{:.5f}\t {:.3f}\t {:.3f}\t {:.3f}\t {:.3f}\t {:.3f}\t {:.3e}\t {:.3e}'.format(it, np.rad2deg(theta0[0]), np.rad2deg(theta0[1]),
+                                                                                    x, y, V[2], V[3], V[4], ew, ev))
+
+        it += 1
+        theta0 = theta1
+
 
 
 # ----------------------------------------------------------------------------------------------------------------------
