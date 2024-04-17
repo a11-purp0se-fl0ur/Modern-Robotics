@@ -1,4 +1,5 @@
 from Functions.Mia_Functions import *
+import modern_robotics as mr
 
 dec = 3
 np.set_printoptions(precision=3, suppress=True)
@@ -7,9 +8,56 @@ np.set_printoptions(precision=3, suppress=True)
 print('\nProblem 1:')
 
 # Given
-Tsd = np.array([[0.707, -0.696, -0.123, -127.5], [0.707, 0.696, 0.123, 127.5], [0, -0.174, 0.985, 190], [0, 0, 0, 1]])
 L1 = L2 = L3 = 100
 b = 50
+
+Tsd = np.array([[0.707, -0.696, -0.123, -127.5],
+                [0.707, 0.696, 0.123, 127.5],
+                [0, -0.174, 0.985, 190],
+                [0, 0, 0, 1]])
+
+# Home Position
+Rsb = np.eye(3)
+p = np.array([0, L2+L3, b+L1])
+M = constructT(Rsb, p)
+
+# Screws in {s} frame
+h = 0
+sHat1 = np.array([0, 0, 1])
+sHat23 = np.array([1, 0, 0])
+q1 = np.array([0, 0, b])
+q2 = np.array([0, 0, b+L1])
+q3 = np.array([0, L2, b+L1])
+s1 = parametersToScrew(sHat1, q1, h)
+s2 = parametersToScrew(sHat23, q2, h)
+s3 = parametersToScrew(sHat23, q3, h)
+Ss = np.column_stack((s1, s2, s3))
+
+# Move to {ee}
+Sb = adjoint(np.linalg.pinv(M)) @ Ss
+
+# Initial Guess
+theta_deg = np.array([40, 30, -40])
+theta_rad = np.radians(theta_deg)
+
+# Initialization
+eomg = 1e-3
+ev = 1e-3
+
+# Newton Raphson
+[theta, success] = mr.IKinBody(Sb, M, Tsd, theta_rad, eomg, ev)
+print('\nThetas:\n', np.degrees(theta))
+print('\nStatus:\n', success)
+
+# Problem 2 ------------------------------------------------------------------------------------------------------------
+print('\nProblem 2:')
+
+# Given
+Tsd = np.array([[-0.5, -0.707, 0.5, -0.12],
+                [0.707, 0, 0.707, 2.295],
+                [-0.5, 0.707, 0.5, 1.51],
+                [0, 0, 0, 1]])
+
 A = 350
 B = 675
 C = 1150
@@ -23,7 +71,6 @@ F = 240
 Rsb = np.eye(3)
 p = np.array([A+E+F, 0, B+C-D])
 M = constructT(Rsb, p)
-print('\nHome:\n', M)
 
 # Screws in the {s} frame
 h = 0
@@ -44,66 +91,32 @@ S4 = parametersToScrew(sHat46, q4, h)
 S5 = parametersToScrew(sHat235, q5, h)
 S6 = parametersToScrew(sHat46, q6, h)
 Ss = np.column_stack((S1, S2, S3, S4, S5, S6))
-print('\nScrews in {s}:\n', Ss)
 
 # Screws in {ee} frame
-Sb = adjoint(np.linalg.inv(M)) @ Ss
-print('\nScrews in {ee}:\n', Sb)
+Sb = adjoint(np.linalg.pinv(M)) @ Ss
 
 # Initial Guess
 theta_deg = np.array([10, 10, 10, 10, 10, 10])
 theta_rad = np.radians(theta_deg)
 
 # Initialization
-epsilon_w = 1e-3 # rotational error, rad
-epsilon_v = 1e-3 # translational error, m
-it = 0
-itmax = 100
-ew = 1e6
-ev = 1e6
-frame = 'space'
+eomg = 1e-3
+ev = 1e-3
 
-# Start of algorithm
-print('\nSTART OF ALGORITHM')
-print('iter\t theta1 (deg)\ttheta2 (deg)\t x\t y\t wz\t vx\t vy\t ew\t\t ev')
-while (ew > epsilon_w or ev > epsilon_v) and it <= itmax:
+# Newton Raphson
+[theta, success] = mr.IKinBody(Sb, M, Tsd, theta_rad, eomg, ev)
+print('\nThetas:\n', np.degrees(theta))
+print('\nStatus:\n', success)
 
-    if frame == 'space':
-        # Configuration at current theta
-        Tsb = PoE_Space(theta_rad, M, Ss)
+# Problem 3 ------------------------------------------------------------------------------------------------------------
+print('\nProblem 3:')
 
-        Tbs = np.linalg.inv(Tsb)
-        Tbd = Tbs @ Tsd
+# Given
+Tsd = np.array([[0.184, 0.387, 0.904, 1.84],
+                [0.089, 0.909, -0.407, 0.021],
+                [-0.979, 0.155, 0.133, 0.12],
+                [0, 0, 0, 1]])
 
-        Rbd, pbd = deconstructT(Tbd)
-
-        # Body twist needed to move from {b} to {d}
-        Vb = skew(Matrix_Logarithm_Rotations(Rbd))
-
-        # Body twist in the space frame (space twist)
-        Vs = adjoint(Tsb) @ Vb
-
-        Js = SpaceJacobian(Ss, theta_rad)
-        Jinv = np.linalg.pinv(Js)
-
-        V = Vs
-
-    else:
-        # compute = False
-        print('Please choose an appropriate frame (body or space) for the calculation.')
-        break
-
-    # error calculations
-    ew = np.linalg.norm([V[0], V[1], V[2]])
-    ev = np.linalg.norm([V[3], V[4], V[5]])
-
-    theta_rad1 = theta_rad + Jinv @ V
-
-    # End-effector coordinates
-    x, y = Tsb[0:2, -1]
-
-    print('{:d}\t {:.5f}\t{:.5f}\t {:.3f}\t {:.3f}\t {:.3f}\t {:.3f}\t {:.3f}\t {:.3e}\t {:.3e}'.format(it, np.rad2deg(theta_rad[0]), np.rad2deg(theta_rad[1]),
-                                                                                                        x, y, V[2], V[3], V[4], ew, ev))
-
-    it += 1
-    theta_rad = theta_rad1
+[theta, success] = mr.IKinBody(Sb, M, Tsd, theta_rad, eomg, ev)
+print('\nThetas:\n', np.degrees(theta))
+print('\nStatus:\n', success)
