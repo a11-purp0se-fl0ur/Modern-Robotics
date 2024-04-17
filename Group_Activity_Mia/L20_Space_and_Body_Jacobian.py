@@ -23,6 +23,8 @@ theta3 = np.pi/3
 #theta = np.column_stack((theta1,theta2,theta3))
 theta = np.array([theta1,theta2,theta3])
 
+
+
 print('\ntheta:\n', theta)
 
 # Define screws
@@ -41,6 +43,8 @@ S3 = parametersToScrew(sHat3, q3, h)
 S = np.column_stack((S1, S2, S3))
 
 print('\nS:\n', S)
+
+
 
 # On to Jacobian
 Js1 = S1

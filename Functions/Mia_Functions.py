@@ -59,7 +59,7 @@ def unSkew(R):
         w4 = R[0, 3]
         w5 = R[1, 3]
         w6 = R[2, 3]
-        V = np.column_stack((w1, w2, w3, w4, w5, w6))
+        V = np.row_stack((w1, w2, w3, w4, w5, w6))
         return V
     else:
         raise ValueError("Input matrix must be either 3x3 or 4x4.")
