@@ -20,6 +20,7 @@ Tsd = np.array([[0.707, -0.696, -0.123, -127.5],
 Rsb = np.eye(3)
 p = np.array([0, L2+L3, b+L1])
 M = constructT(Rsb, p)
+print('Home Test:\n', M)
 
 # Screws in {s} frame
 h = 0
@@ -32,9 +33,11 @@ s1 = parametersToScrew(sHat1, q1, h)
 s2 = parametersToScrew(sHat23, q2, h)
 s3 = parametersToScrew(sHat23, q3, h)
 Ss = np.column_stack((s1, s2, s3))
+print('Space Screw Test:\n', Ss)
 
 # Move to {ee}
 Sb = adjoint(np.linalg.pinv(M)) @ Ss
+print('Body Screw Test:\n', Sb)
 
 # Initial Guess
 theta_deg = np.array([40, 30, -40])
@@ -57,6 +60,7 @@ Tsd = np.array([[-0.5, -0.707, 0.5, -0.12],
                 [0.707, 0, 0.707, 2.295],
                 [-0.5, 0.707, 0.5, 1.51],
                 [0, 0, 0, 1]])
+
 
 A = 350
 B = 675

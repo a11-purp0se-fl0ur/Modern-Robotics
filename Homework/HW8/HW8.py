@@ -25,7 +25,7 @@ theta2 = np.radians(30)
 theta3 = np.radians(30)
 
 # Theta Array
-theta = np.column_stack((theta1, theta2, theta3))
+theta = np.array([theta1, theta2, theta3])
 
 # Construct T
 T = PoE_Space(theta, M, S)
@@ -42,7 +42,7 @@ theta2 = np.radians(35)
 theta3 = np.radians(-45)
 
 # Theta Array
-theta = np.column_stack([theta1, theta2, theta3])
+theta = np.array([theta1, theta2, theta3])
 
 # Calculate M
 R = np.eye(3)
