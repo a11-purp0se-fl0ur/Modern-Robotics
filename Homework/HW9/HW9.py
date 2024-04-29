@@ -5,7 +5,7 @@ dec = 3
 np.set_printoptions(precision=3, suppress=True)
 
 # Problem 1 ------------------------------------------------------------------------------------------------------------
-print('\nProblem 1:')
+print('\nProblem 1:\n')
 
 # Given
 L1 = L2 = L3 = 100
@@ -55,8 +55,9 @@ print('\nStatus:\n', success)
 test = mr.FKinBody(M, Sb, theta)
 print('Actual:\n', test)
 print('Desired:\n', Tsd)
+
 # Problem 2 ------------------------------------------------------------------------------------------------------------
-print('\nProblem 2:')
+print('\nProblem 2:\n')
 
 # Given
 Tsd = np.array([[-0.5, -0.707, 0.5, -0.12],
@@ -120,7 +121,7 @@ print('Actual:\n', test)
 print('Desired:\n', Tsd)
 
 # Problem 3 ------------------------------------------------------------------------------------------------------------
-print('\nProblem 3:')
+print('\nProblem 3:\n')
 
 # Given
 Tsd = np.array([[0.184, 0.387, 0.904, 1.84],
