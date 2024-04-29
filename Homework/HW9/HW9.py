@@ -79,6 +79,7 @@ F = 240
 Rsb = np.eye(3)
 p = np.array([A+E+F, 0, B+C-D])
 M = constructT(Rsb, p)
+print('Home Test:\n', M)
 
 # Screws in the {s} frame
 h = 0
@@ -99,12 +100,16 @@ S4 = parametersToScrew(sHat46, q4, h)
 S5 = parametersToScrew(sHat235, q5, h)
 S6 = parametersToScrew(sHat46, q6, h)
 Ss = np.column_stack((S1, S2, S3, S4, S5, S6))
+print('Screw in space:\n', Ss)
 
 # Screws in {ee} frame
 Sb = adjoint(np.linalg.pinv(M)) @ Ss
+print('Screw in body:\n', Sb)
 
 # Initial Guess
 theta_deg = np.array([10, 10, 10, 10, 10, 10])
+#theta_deg = np.array([0, 0, 0, 0, 0, 0])
+
 theta_rad = np.radians(theta_deg)
 
 # Initialization

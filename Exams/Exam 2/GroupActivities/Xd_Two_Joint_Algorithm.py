@@ -1,8 +1,6 @@
-import numpy as np
-from matplotlib import pyplot as plt
 from Functions.Mia_Functions import *
-dec = 3
-np.set_printoptions(precision=3, suppress=True)
+from Functions.Phil_Functions import *
+import modern_robotics as mr
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Example 1
@@ -75,4 +73,3 @@ while it <= itmax:
 
 print('\n\nDesired coordinate position:   ', Xd)
 print('Calculated coordinate position:', X0)
-# ----------------------------------------------------------------------------------------------------------------------
