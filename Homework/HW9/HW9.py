@@ -52,6 +52,9 @@ ev = 1e-3
 print('\nThetas:\n', np.degrees(theta))
 print('\nStatus:\n', success)
 
+test = mr.FKinBody(M, Sb, theta)
+print('Actual:\n', test)
+print('Desired:\n', Tsd)
 # Problem 2 ------------------------------------------------------------------------------------------------------------
 print('\nProblem 2:')
 
@@ -112,6 +115,10 @@ ev = 1e-3
 print('\nThetas:\n', np.degrees(theta))
 print('\nStatus:\n', success)
 
+test = mr.FKinBody(M, Sb, theta)
+print('Actual:\n', test)
+print('Desired:\n', Tsd)
+
 # Problem 3 ------------------------------------------------------------------------------------------------------------
 print('\nProblem 3:')
 
@@ -124,3 +131,7 @@ Tsd = np.array([[0.184, 0.387, 0.904, 1.84],
 [theta, success] = mr.IKinBody(Sb, M, Tsd, theta_rad, eomg, ev)
 print('\nThetas:\n', np.degrees(theta))
 print('\nStatus:\n', success)
+
+test = mr.FKinBody(M, Sb, theta)
+print('Actual:\n', test)
+print('Desired:\n', Tsd)
