@@ -83,58 +83,11 @@ def expCoord_to_R(expCoord):
     R = Rod(theta, omegaskew)
     return R
 
-
-def matrix_exponential(A, theta, n=50):
-    """
-    Compute the matrix exponential e^(A*theta) using Taylor series expansion.
-
-    :param A: The matrix
-    :param theta: The scalar multiplier
-    :param n: Number of terms in the Taylor series expansion
-    :return: The matrix exponential of A*theta
-    """
-    result = np.eye(A.shape[0])  # Start with the identity matrix
-    A_scaled = A * theta
-    factorial = 1  # Factorial starts at 1! for the first term
-
-    for i in range(1, n):
-        factorial *= i
-        result += np.linalg.matrix_power(A_scaled, i) / factorial
-
-    return result
-
-
 # ----------------------------------------------------------------------------------------------------------------------
 # Description: Matrix Logarithms
 # ----------------------------------------------------------------------------------------------------------------------
 
 # Description: Find axis of rotation and angle of rotation to get to a known R ending point
-def Matrix_Logarithm_Rotations(R):
-    # Check for identity matrix
-    if np.allclose(R, np.eye(3)):
-        theta = 0
-        print("The provided matrix was the Identity Matrix. Omega is undefinted.")
-        return theta
-
-    # Check for trace -1
-    trR = np.trace(R)
-    if np.isclose(trR, -1):
-        theta = np.pi
-        # Select the appropriate omega calculation based on the matrix entries
-        if (1 + R[2, 2]) > np.finfo(float).eps:
-            omega = 1 / np.sqrt(2 * (1 + R[2, 2])) * np.array([R[0, 2], R[1, 2], 1 + R[2, 2]])
-        elif (1 + R[1, 1]) > np.finfo(float).eps:
-            omega = 1 / np.sqrt(2 * (1 + R[1, 1])) * np.array([R[0, 1], 1 + R[1, 1], R[2, 1]])
-        else:
-            omega = 1 / np.sqrt(2 * (1 + R[0, 0])) * np.array([1 + R[0, 0], R[1, 0], R[2, 0]])
-        return theta, omega
-
-    # Otherwise, use the general formula
-    theta = np.arccos(0.5 * (trR - 1))
-    omega = 1 / (2 * np.sin(theta)) * (R - R.T)
-    return theta, omega
-
-# Description: REDO Matrix Log
 def Matrix_Logarithm(matrix):
     """
     Calculate the matrix logarithm for either a 3x3 rotation matrix R or a 4x4 transformation matrix T,
